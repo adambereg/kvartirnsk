@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from './ui/button';
 import { Search } from 'lucide-react';
 
@@ -19,47 +21,109 @@ const metroStations = [
 ];
 
 export function SearchForm() {
+  const navigate = useNavigate();
+  const [location, setLocation] = useState('');
+  const [dates, setDates] = useState({ checkIn: '', checkOut: '' });
+  const [guests, setGuests] = useState(1);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const params = new URLSearchParams({
+      location,
+      checkIn: dates.checkIn,
+      checkOut: dates.checkOut,
+      guests: guests.toString(),
+    });
+    navigate(`/catalog?${params.toString()}`);
+  };
+
   return (
-    <div className="w-full max-w-3xl mx-auto p-4 md:p-6">
-      <form className="grid gap-6 md:grid-cols-4">
-        <div className="flex flex-col justify-end">
-          <label className="text-sm font-medium leading-none text-white mb-2">
-            Станция метро
+    <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-lg p-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {/* Локация */}
+        <div className="relative">
+          <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
+            Район или метро
           </label>
-          <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50">
-            <option value="">Выберите станцию</option>
-            {metroStations.map((station) => (
-              <option key={station} value={station}>
-                {station}
-              </option>
-            ))}
-          </select>
+          <input
+            type="text"
+            id="location"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Например: Площадь Ленина"
+          />
         </div>
-        <div className="flex flex-col justify-end">
-          <label className="text-sm font-medium leading-none text-white mb-2">
+
+        {/* Дата заезда */}
+        <div>
+          <label htmlFor="checkIn" className="block text-sm font-medium text-gray-700 mb-1">
             Дата заезда
           </label>
           <input
             type="date"
-            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+            id="checkIn"
+            value={dates.checkIn}
+            onChange={(e) => setDates({ ...dates, checkIn: e.target.value })}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
-        <div className="flex flex-col justify-end">
-          <label className="text-sm font-medium leading-none text-white mb-2">
+
+        {/* Дата выезда */}
+        <div>
+          <label htmlFor="checkOut" className="block text-sm font-medium text-gray-700 mb-1">
             Дата выезда
           </label>
           <input
             type="date"
-            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+            id="checkOut"
+            value={dates.checkOut}
+            onChange={(e) => setDates({ ...dates, checkOut: e.target.value })}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
-        <div className="flex flex-col justify-end">
-          <Button type="submit" className="h-10 w-full">
-            <Search className="mr-2 h-4 w-4" />
-            Найти
-          </Button>
+
+        {/* Количество гостей */}
+        <div>
+          <label htmlFor="guests" className="block text-sm font-medium text-gray-700 mb-1">
+            Гости
+          </label>
+          <div className="flex items-center">
+            <button
+              type="button"
+              onClick={() => setGuests(Math.max(1, guests - 1))}
+              className="px-3 py-2 border border-gray-300 rounded-l-md hover:bg-gray-100"
+            >
+              -
+            </button>
+            <input
+              type="number"
+              id="guests"
+              value={guests}
+              onChange={(e) => setGuests(Math.max(1, parseInt(e.target.value) || 1))}
+              min="1"
+              className="w-full px-4 py-2 border-y border-gray-300 text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <button
+              type="button"
+              onClick={() => setGuests(guests + 1)}
+              className="px-3 py-2 border border-gray-300 rounded-r-md hover:bg-gray-100"
+            >
+              +
+            </button>
+          </div>
         </div>
-      </form>
-    </div>
+      </div>
+
+      {/* Кнопка поиска */}
+      <div className="mt-6">
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white py-3 px-6 rounded-md hover:bg-blue-700 transition-colors"
+        >
+          Найти жилье
+        </button>
+      </div>
+    </form>
   );
 }
